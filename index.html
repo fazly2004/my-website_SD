@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serendib Biomed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Parallax background for hero section with image slider */
+        .hero-section {
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        /* Image slider for hero background */
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+        }
+        /* Fade-in animation for sections */
+        .section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Scale-up and glow hover effect for buttons */
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        /* Loading animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        /* Keyframes */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Logo styling */
+        .logo {
+            height: 32px;
+            margin-right: 8px;
+        }
+        /* Form success message */
+        .success-message {
+            display: none;
+            background-color: #064e3b;
+            border: 1px solid #047857;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #6ee7b7;
+            text-align: center;
+        }
+        
+        /* ====== Enhanced Mouseover Effects ====== */
+        
+        /* Card hover effects */
+        .enhanced-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        .enhanced-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+        }
+        .enhanced-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .enhanced-card:hover::before {
+            opacity: 1;
+        }
+        .enhanced-card .card-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Button hover effects */
+        .btn-hover-effect {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-hover-effect::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s ease;
+            z-index: -1;
+        }
+        .btn-hover-effect:hover::after {
+            transform: translate(-50%, -50%) scale(20);
+        }
+        
+        /* Navigation hover effects */
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Pipeline program hover effect */
+        .pipeline-card {
+            position: relative;
+            transition: all 0.4s ease;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        .pipeline-card:hover {
+            transform: translateY(-5px);
+        }
+        .pipeline-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #3b82f6;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .pipeline-card:hover::after {
+            transform: scaleX(1);
+        }
+        
+        /* Form input hover effects */
+        .form-input {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+        .form-input:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        
+        /* Footer link hover effect */
+        .footer-link {
+            position: relative;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #93c5fd;
+            transition: width 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #93c5fd;
+        }
+        .footer-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-slate-800 shadow-lg z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="logo.jpg" alt="Serendib Biomed" class="logo">
+                <div class="text-2xl font-bold text-blue-400">Serendib Biomed</div>
+            </div>
+            <ul class="flex space-x-6">
+                <li><a href="#overview" class="text-slate-300 hover:text-blue-400 transition nav-link">Overview</a></li>
+                <li><a href="#technology" class="text-slate-300 hover:text-blue-400 transition nav-link">Technology</a></li>
+                <li><a href="#pipeline" class="text-slate-300 hover:text-blue-400 transition nav-link">Pipeline</a></li>
+                <li><a href="#contact" class="text-slate-300 hover:text-blue-400 transition nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="overview">
+        <!-- Hero Image Slider -->
+        <div class="hero-slider">
+            <div class="hero-slide active" style="background-image: url('hero-image-1.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('hero-image-2.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('hero-image-3.jpg');"></div>
+        </div>
+        
+        <div class="hero-content">
+            <h1 class="text-5xl font-bold mb-4">The Anti-Microbial Coating Company</h1>
+            <p class="text-xl mb-8">Developing anti-infective strategies to prevent medical device infections</p>
+            <div class="space-x-4">
+                <a href="#technology" class="btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 btn-hover-effect">Our Technology</a>
+                <a href="#contact" class="btn bg-transparent border-2 border-white text-white px-6 py-3 rounded-full hover:bg-white hover:text-blue-600 btn-hover-effect">Investor Relations</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section py-16" id="about">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-8 text-white">About Serendib Biomed</h2>
+            <p class="text-lg text-center mb-12">Massachusetts-based stealth mode biotechnology company focused on developing anti-infective strategies</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="enhanced-card p-6 rounded-lg shadow-lg">
+                    <div class="card-content">
+                        <h3 class="text-2xl font-semibold mb-4 text-white">Anti-microbial coatings for Medical Devices</h3>
+                        <p>Novel materials and coatings for indwelling medical devices</p>
+                    </div>
+                </div>
+                <div class="enhanced-card p-6 rounded-lg shadow-lg">
+                    <div class="card-content">
+                        <h3 class="text-2xl font-semibold mb-4 text-white">Novel Antibiotics</h3>
+                        <p>Winning the evolutionary arms race with effective antibiotics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Technology Section -->
+    <section class="section py-16 bg-slate-800" id="technology">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-8 text-white">Serendib Biomed Technology Platform</h2>
+            <p class="text-lg text-center mb-12">Expanding the anti-infective armamentarium with AI-assisted R&D</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="enhanced-card p-6 rounded-lg shadow-lg">
+                    <div class="card-content">
+                        <h3 class="text-xl font-semibold mb-4 text-white">1. Development of anti-microbial coatings </h3>
+                        <p>Developing novel microbial resistant biomaterials and coatings for medical devices</p>
+                    </div>
+                </div>
+                <div class="enhanced-card p-6 rounded-lg shadow-lg">
+                    <div class="card-content">
+                        <h3 class="text-xl font-semibold mb-4 text-white">2. AI Assisted development of novel antibiotics</h3>
+                        <p>Leveraging the awesome power of AI to create novel and effective antibiotics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline Section -->
+    <section class="section py-16" id="pipeline">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-8 text-white">Therapeutic Pipeline</h2>
+            <p class="text-lg text-center mb-12">Focus on microbial infections</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="pipeline-card p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-white">Anti-microbial coatings</h3>
+                    <p>Catheter-related bloodstream infection (market central lines, urinary catheters)~$2.5 billion in 2023 projected to reach ~$2.65 billion by 2034.</p>
+                </div>
+				<div class="pipeline-card p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-white">Antibiotics</h3>
+                    <p>(Target Undisclosed): $18.4 billion (2024 est) market opportunity across all indications expected to grow to US$ 25.2B by 2033.</p>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section py-16 bg-slate-800" id="contact">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-8 text-white">Contact Us</h2>
+            <p class="text-lg text-center mb-12">Interested in partnership or investment opportunities? Reach out to our team</p>
+            <div class="max-w-lg mx-auto">
+                <!-- Success Message -->
+                <div id="success-message" class="success-message">
+                    <p>Thank you for your message! We'll get back to you soon.</p>
+                </div>
+                
+                <!-- Formspree Form -->
+                <form id="contact-form" action="https://formspree.io/f/meozzobn" method="POST">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300">Name</label>
+                            <input type="text" name="name" required class="form-input mt-1 block w-full p-3 rounded-lg focus:ring-blue-600 focus:border-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300">Email</label>
+                            <input type="email" name="_replyto" required class="form-input mt-1 block w-full p-3 rounded-lg focus:ring-blue-600 focus:border-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300">Organization</label>
+                            <input type="text" name="organization" class="form-input mt-1 block w-full p-3 rounded-lg focus:ring-blue-600 focus:border-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300">Interest</label>
+                            <select name="interest" class="form-input mt-1 block w-full p-3 rounded-lg focus:ring-blue-600 focus:border-blue-600">
+                                <option value="">Select an option</option>
+                                <option value="Investment Opportunity">Investment Opportunity</option>
+                                <option value="Research Partnership">Research Partnership</option>
+                                <option value="Media Inquiry">Media Inquiry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300">Message</label>
+                            <textarea name="message" required class="form-input mt-1 block w-full p-3 rounded-lg focus:ring-blue-600 focus:border-blue-600" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn-hover-effect w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-700">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-white">Serendib Biomed</h3>
+                    <p>Developing curative gene editing therapies for genetic diseases with high unmet medical need through our proprietary ModiCas platform.</p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-white">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="transition footer-link">About Us</a></li>
+                        <li><a href="#technology" class="transition footer-link">Technology</a></li>
+                        <li><a href="#pipeline" class="transition footer-link">Pipeline</a></li>
+                        <li><a href="#contact" class="transition footer-link">Contact</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <p class="text-center mt-8 text-slate-400">© 2025 Serendib Biomed. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Hide loader after page load
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 1000);
+        });
+
+        // Hero Image Slider
+        function initHeroSlider() {
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+            const slideCount = slides.length;
+            const slideDuration = 6000; // 6 seconds per slide
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === index) {
+                        slide.classList.add('active');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slideCount;
+                showSlide(currentSlide);
+            }
+
+            // Initialize with first slide
+            showSlide(currentSlide);
+
+            // Start automatic rotation
+            setInterval(nextSlide, slideDuration);
+        }
+
+        // Initialize slider after page load
+        window.addEventListener('load', () => {
+            initHeroSlider();
+        });
+
+        // Scroll reveal for sections
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        sections.forEach(section => observer.observe(section));
+        
+        // Form submission handling
+        const contactForm = document.getElementById('contact-form');
+        const successMessage = document.getElementById('success-message');
+        
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Show loading state
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = 'Sending...';
+                submitButton.disabled = true;
+                
+                try {
+                    const formData = new FormData(contactForm);
+                    const response = await fetch(contactForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        contactForm.reset();
+                        
+                        // Hide success message after 5 seconds
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 5000);
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                } catch (error) {
+                    alert('There was a problem sending your message. Please try again later.');
+                    console.error('Form submission error:', error);
+                } finally {
+                    // Reset button
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
